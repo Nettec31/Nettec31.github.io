@@ -137,77 +137,6 @@
             margin-bottom: 14px;
         }
 
-        /* Study partners section inside each card */
-        .partners-title {
-            font-size: 11px;
-            color: #90a4ae;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-
-        /* Each partner row */
-        .partner-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 10px;
-            border-radius: 6px;
-            background: rgba(0, 255, 255, 0.04);
-            border: 1px solid rgba(0, 255, 255, 0.1);
-            margin-bottom: 6px;
-        }
-
-        .partner-name {
-            font-size: 13px;
-            color: white;
-            font-weight: 600;
-        }
-
-        .partner-info {
-            font-size: 11px;
-            color: #90a4ae;
-            margin-top: 2px;
-        }
-
-        /* Match score badge */
-        .match-badge {
-            font-size: 10px;
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            white-space: nowrap;
-        }
-
-        /* Full match - both availability and campus match */
-        .match-full {
-            background: rgba(0, 255, 136, 0.15);
-            border: 1px solid #00ff88;
-            color: #00ff88;
-        }
-
-        /* Partial match - only one thing matches */
-        .match-partial {
-            background: rgba(255, 200, 0, 0.15);
-            border: 1px solid #ffc800;
-            color: #ffc800;
-        }
-
-        /* No match - same course only */
-        .match-none {
-            background: rgba(144, 164, 174, 0.1);
-            border: 1px solid #90a4ae;
-            color: #90a4ae;
-        }
-
-        /* No partners message */
-        .no-partners {
-            font-size: 13px;
-            color: #90a4ae;
-            padding: 8px 0;
-        }
-
         /* Enter lobby button - same as original */
         .btn-join {
             width: 100%;
@@ -317,46 +246,17 @@
                 /* Create a card for each enrolled course */
                 data.courses.forEach(function(course) {
 
-                    /* Build the partners list HTML */
-                    let partnersHTML = '';
-
-                    if (course.matches.length === 0) {
-                        partnersHTML = '<div class="no-partners">No study partners yet for this course.</div>';
-                    } else {
-                        /* Show up to 3 best matching partners */
-                        const top = course.matches.slice(0, 3);
-                        top.forEach(function(partner) {
-
-                            /* Pick badge color based on match score */
-                            let badgeClass = 'match-none';
-                            let badgeText = 'SAME COURSE';
-                            if (partner.match_score === 2) {
-                                badgeClass = 'match-full';
-                                badgeText = 'BEST MATCH';
-                            } else if (partner.match_score === 1) {
-                                badgeClass = 'match-partial';
-                                badgeText = 'GOOD MATCH';
-                            }
-
-                            partnersHTML += `
-                                <div class="partner-row">
-                                    <div>
-                                        <div class="partner-name">${partner.name}</div>
-                                        <div class="partner-info">${partner.availability} · ${partner.campus}</div>
-                                    </div>
-                                    <span class="match-badge ${badgeClass}">${badgeText}</span>
-                                </div>
-                            `;
-                        });
-                    }
-
-                    /* Add the full course card */
+                    /* Count how many patners have in lobby */
                     grid.innerHTML += `
                         <div class="course-card">
                             <div class="course-code">${course.code}</div>
                             <div class="course-name">${course.name}</div>
-                            <div class="partners-title">Study Partners</div>
-                            ${partnersHTML}
+                            <div class="card-footer">
+                                <div class="students-count">
+                                    <div class="active-dot"></div>
+                                    ${course.matches.length} students in lobby
+                                </div>
+                            </div>
                             <button class="btn-join" onclick="joinRoom('${course.code}')">
                                 ENTER LOBBY
                             </button>
