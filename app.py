@@ -1,13 +1,10 @@
 import re
 import bcrypt
 import json
-from google import genai
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-from models import db, User, StudentCourse, Connection
+from models import db, User, StudentCourse
 
-#Connect to gemini using API key
-client = genai.Client(api_key="AIzaSyD4E3sDbVwlnT5Bb_UAcreSf1ca1_xKy8I")
 
 app = Flask(__name__)
 CORS(app)
@@ -256,150 +253,6 @@ def get_lobby():
         })
 
     return jsonify({"success": True, "courses": result})
-
-#Gemini AI compare students bios
-def match_bios(my_bio, other_bio, my_name, other_name):
-    try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=f"""Compare these two student study bios and explain why they are a good study match.
-Mention specific keywords or shared interests from their bios.
-Reply with short, straightforward under 30 words. If they don't match, reply with empty string only.
-
-{my_name} bio: {my_bio}
-{other_name} bio: {other_bio}
-
-Reply with short, straightforward under 30 words. or empty string. Nothing else."""
-        )
-        return response.text.strip()
-    except Exception as e:
-        print(f"Bio matching error: {e}")
-        return ""
-    
-#/api/room/ route
-@app.route("/api/room", methods=["GET"])
-def get_room():
-    email = request.args.get("email")
-    course_code = request.args.get("course_code")
-
-    user = User.query.filter_by(email=email).first()
-    if not user:
-        return jsonify({"success": False, "message": "User not found"})
-
-    # Find all other students in the same course
-    others = StudentCourse.query.filter_by(course_code=course_code).all()
-
-    matches = []
-    for other in others:
-        if other.email == email:
-            continue  # skip yourself
-
-        other_user = User.query.filter_by(email=other.email).first()
-        if not other_user:
-            continue
-
-        # Rule based scoring
-        score = 0
-        reasons = []
-
-        if other_user.major == user.major and user.major:
-            score += 20
-            reasons.append(f"Same major — {user.major}")
-
-        if other_user.availability == user.availability and user.availability:
-            score += 20
-            reasons.append(f"Same availability — {user.availability}")
-
-        if other_user.campus == user.campus and user.campus:
-            score += 20
-            reasons.append(f"Same campus — {user.campus}")
-
-        # AI bio matching - only if both students have bios
-        if user.bio and other_user.bio:
-            bio_reason = match_bios(user.bio, other_user.bio, user.name, other_user.name)
-            if bio_reason:
-                score += 40
-                reasons.append(bio_reason)
-
-
-        matches.append({
-            "name": other_user.name,
-            "email": other_user.email,
-            "major": other_user.major or "—",
-            "availability": other_user.availability or "—",
-            "campus": other_user.campus or "—",
-            "score": score,
-            "reasons": reasons
-        })
-
-    # Sort highest match first
-    matches.sort(key=lambda x: x["score"], reverse=True)
-
-    # Get course name
-    course = StudentCourse.query.filter_by(course_code=course_code).first()
-
-    return jsonify({
-        "success": True,
-        "course_code": course_code,
-        "course_name": course.course_name if course else course_code,
-        "matches": matches
-    })
-
-#Match connected student
-@app.route("/api/connect", methods=["POST"])
-def connect_student():
-    data = request.get_json()
-    from_email = data.get("from_email")
-    to_email = data.get("to_email")
-    course_code = data.get("course_code")
-
-    new_connection = Connection(
-        from_email=from_email,
-        to_email=to_email,
-        course_code=course_code
-    )
-    db.session.add(new_connection)
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "Connection request sent!"})
-
-# Get pending connection requests for a student
-@app.route("/api/connections", methods=["GET"])
-def get_connections():
-    email = request.args.get("email")
-    
-    # Requests sent TO this student that are pending
-    pending = Connection.query.filter_by(to_email=email, status="pending").all()
-    
-    result = []
-    for conn in pending:
-        sender = User.query.filter_by(email=conn.from_email).first()
-        if sender:
-            result.append({
-                "id": conn.id,
-                "from_name": sender.name,
-                "from_email": sender.email,
-                "course_code": conn.course_code
-            })
-    
-    return jsonify({"success": True, "requests": result})
-
-
-# Accept or decline a connection request
-@app.route("/api/connections/respond", methods=["POST"])
-def respond_connection():
-    data = request.get_json()
-    conn_id = data.get("id")
-    action = data.get("action")  # "accepted" or "declined"
-
-    conn = Connection.query.filter_by(id=conn_id).first()
-    if not conn:
-        return jsonify({"success": False, "message": "Request not found"})
-
-    conn.status = action
-    db.session.commit()
-
-    return jsonify({"success": True, "message": f"Request {action}!"})
 
 if __name__ == "__main__":
     print("Server running at http://127.0.0.1:5000")

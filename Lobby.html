@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Success Lobby - CPCC</title>
+    <!-- Lobby page - cyberpunk/neon gaming style with course categories -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #050d1a;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            background-image:
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+            letter-spacing: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-tag {
+            font-size: 13px;
+            color: #00ffff;
+            border: 1px solid #00ffff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            box-shadow: 0 0 8px rgba(0,255,255,0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .profile-link {
+            font-size: 12px;
+            color: #90a4ae;
+            text-decoration: none;
+            letter-spacing: 1px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .profile-link:hover { color: #00ffff; }
+
+        /* Logout button */
+        .btn-logout {
+            font-size: 11px;
+            color: #ff4444;
+            border: 1px solid #ff4444;
+            background: transparent;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 68, 68, 0.15);
+            box-shadow: 0 0 8px rgba(255,68,68,0.3);
+        }
+
+        /* Demo mode banner */
+        .demo-banner {
+            background: rgba(255, 200, 0, 0.1);
+            border: 1px solid #ffc800;
+            border-radius: 8px;
+            padding: 10px 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #ffc800;
+            display: none;
+        }
+
+        /* Each category section */
+        .course-section {
+            margin-bottom: 40px;
+        }
+
+        /* Section title - shows category name */
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 16px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Grid of course cards inside each section */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        /* Each course card */
+        .course-card {
+            background: linear-gradient(135deg, #0a1628, #0d2137);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-card:hover {
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Neon left border accent */
+        .course-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #00ffff, #0066ff);
+            box-shadow: 0 0 8px #00ffff;
+        }
+
+        .course-code {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 4px;
+            text-shadow: 0 0 8px rgba(0,255,255,0.5);
+        }
+
+        .course-name {
+            font-size: 14px;
+            color: #cdd9e5;
+            margin-bottom: 14px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .students-count {
+            font-size: 13px;
+            color: #90a4ae;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Enter lobby button */
+        .btn-join {
+            width: 100%;
+            margin-top: 14px;
+            padding: 10px;
+            background: transparent;
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+        }
+
+        .btn-join:hover {
+            background: rgba(0, 255, 255, 0.15);
+            box-shadow: 0 0 12px rgba(0,255,255,0.3);
+        }
+
+        /* Green pulsing dot */
+        .active-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #00ff88;
+            animation: pulse 2s infinite;
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .empty-msg {
+            text-align: center;
+            padding: 40px 20px;
+            color: #90a4ae;
+            font-size: 14px;
+        }
+
+        .empty-msg a { color: #00ffff; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">⬡ SUCCESS LOBBY</div>
+        <div class="header-right">
+            <a href="profile.html" class="profile-link">MY PROFILE</a>
+            <!-- Logout clears session and returns to login -->
+            <button class="btn-logout" onclick="logout()">LOGOUT</button>
+            <div class="user-tag">
+                <span class="active-dot"></span>
+                <span id="display-user">STUDENT</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shows when server is offline -->
+    <div class="demo-banner" id="demo-banner">
+        ⚡ DEMO MODE — Server offline. Showing sample data.
+    </div>
+
+    <!-- All course sections are injected here by JavaScript -->
+    <div id="lobbyContainer"></div>
+
+    <script>
+        /* Escapes HTML to prevent XSS attacks */
+        function escapeHTML(str) {
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        /* Get user info from localStorage */
+        const userName = localStorage.getItem('cpcc-user') || 'STUDENT';
+        const userEmail = localStorage.getItem('cpcc-email') || '';
+
+        /* If not logged in send back to login */
+        if (!userEmail) {
+            window.location.href = 'cpcc_login.html';
+        }
+
+        /* Show name in header */
+        document.getElementById('display-user').textContent = userName.toUpperCase();
+
+        /* Logout - clears all saved data and goes back to login */
+        function logout() {
+            localStorage.removeItem('cpcc-user');
+            localStorage.removeItem('cpcc-email');
+            localStorage.removeItem('cpcc-profile');
+            localStorage.removeItem('current-course');
+            window.location.href = 'cpcc_login.html';
+        }
+
+        /* Save the course code and go to the room */
+        function joinRoom(code) {
+            localStorage.setItem('current-course', code);
+            window.location.href = 'room.html';
+        }
+
+        /* Load this student's courses from the server */
+        function loadLobby() {
+            fetch(`http://127.0.0.1:5000/api/lobby?email=${userEmail}`)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                const container = document.getElementById('lobbyContainer');
+
+                if (!data.success) {
+                    container.innerHTML = '<div class="empty-msg">Could not load lobby.</div>';
+                    return;
+                }
+
+                if (data.courses.length === 0) {
+                    container.innerHTML = '<div class="empty-msg">You have no courses yet. <a href="profile.html">Go to your profile</a> to add courses.</div>';
+                    return;
+                }
+
+                /* Group server courses by category and render */
+                renderGrouped(data.courses, container);
+            })
+            .catch(function() {
+                /* Server offline - use demo mode */
+                console.log('Server offline - running in demo mode');
+                document.getElementById('demo-banner').style.display = 'block';
+                loadDemoLobby();
+            });
+        }
+
+        /* Renders courses grouped by category */
+        function renderGrouped(courses, container) {
+            container.innerHTML = '';
+
+            /* Group courses by category */
+            const grouped = courses.reduce(function(acc, course) {
+                const cat = course.category || 'Other';
+                if (!acc[cat]) acc[cat] = [];
+                acc[cat].push(course);
+                return acc;
+            }, {});
+
+            /* Create a section for each category */
+            Object.entries(grouped).forEach(function([category, list]) {
+                const section = document.createElement('div');
+                section.className = 'course-section';
+
+                let cardsHTML = '';
+                list.forEach(function(course) {
+                    const students = course.matches ? course.matches.length : course.students || 0;
+                    cardsHTML += `
+                        <div class="course-card">
+                            <div class="course-code">${escapeHTML(course.code)}</div>
+                            <div class="course-name">${escapeHTML(course.name)}</div>
+                            <div class="card-footer">
+                                <div class="students-count">
+                                    <div class="active-dot"></div>
+                                    ${students} students in lobby
+                                </div>
+                            </div>
+                            <button class="btn-join" onclick="joinRoom('${escapeHTML(course.code)}')">
+                                ENTER LOBBY
+                            </button>
+                        </div>
+                    `;
+                });
+
+                section.innerHTML = `
+                    <div class="section-title">// ${escapeHTML(category)}</div>
+                    <div class="courses-grid">${cardsHTML}</div>
+                `;
+
+                container.appendChild(section);
+            });
+        }
+
+        /* Demo mode - shows fake courses grouped by category */
+        function loadDemoLobby() {
+            const container = document.getElementById('lobbyContainer');
+
+            /* All CPCC courses organized by academic category */
+            const demoCourses = [
+                /* Computer Science */
+                { code: 'CIS-110', name: 'Introduction to Computers', students: 8, category: 'Computer Science' },
+                { code: 'CIS-115', name: 'Intro to Programming Logic', students: 6, category: 'Computer Science' },
+                { code: 'CSC-121', name: 'Python Programming', students: 6, category: 'Computer Science' },
+                { code: 'CSC-151', name: 'Java Programming', students: 4, category: 'Computer Science' },
+                { code: 'CSC-153', name: 'C++ Programming', students: 3, category: 'Computer Science' },
+                { code: 'CSC-134', name: 'C++ Programming II', students: 2, category: 'Computer Science' },
+                { code: 'CTI-110', name: 'Web Development', students: 5, category: 'Computer Science' },
+                { code: 'DBA-110', name: 'Database Concepts', students: 4, category: 'Computer Science' },
+                /* Business */
+                { code: 'BUS-110', name: 'Introduction to Business', students: 5, category: 'Business' },
+                { code: 'BUS-115', name: 'Business Law', students: 2, category: 'Business' },
+                { code: 'BUS-137', name: 'Principles of Management', students: 5, category: 'Business' },
+                { code: 'MKT-120', name: 'Principles of Marketing', students: 4, category: 'Business' },
+                { code: 'ACC-120', name: 'Principles of Accounting', students: 3, category: 'Business' },
+                { code: 'ECO-251', name: 'Principles of Microeconomics', students: 3, category: 'Business' },
+                /* Math */
+                { code: 'MAT-143', name: 'Quantitative Literacy', students: 4, category: 'Math' },
+                { code: 'MAT-152', name: 'Statistical Methods', students: 6, category: 'Math' },
+                { code: 'MAT-171', name: 'Precalculus Algebra', students: 7, category: 'Math' },
+                { code: 'MAT-172', name: 'Precalculus Trigonometry', students: 2, category: 'Math' },
+                /* English */
+                { code: 'ENG-111', name: 'Writing & Inquiry', students: 5, category: 'English' },
+                { code: 'ENG-112', name: 'Writing & Research', students: 3, category: 'English' },
+                { code: 'COM-231', name: 'Public Speaking', students: 6, category: 'English' },
+                /* Science */
+                { code: 'BIO-111', name: 'General Biology I', students: 6, category: 'Science' },
+                { code: 'BIO-112', name: 'General Biology II', students: 3, category: 'Science' },
+                { code: 'CHM-151', name: 'General Chemistry I', students: 4, category: 'Science' },
+                { code: 'CHM-152', name: 'General Chemistry II', students: 2, category: 'Science' },
+                { code: 'PHY-151', name: 'College Physics I', students: 4, category: 'Science' },
+                /* Social Sciences */
+                { code: 'PSY-150', name: 'General Psychology', students: 7, category: 'Social Sciences' },
+                { code: 'SOC-210', name: 'Introduction to Sociology', students: 3, category: 'Social Sciences' },
+                { code: 'HIS-131', name: 'American History I', students: 4, category: 'Social Sciences' },
+                { code: 'ART-111', name: 'Art Appreciation', students: 3, category: 'Social Sciences' },
+                /* Health */
+                { code: 'HEA-110', name: 'Personal Health & Wellness', students: 4, category: 'Health' },
+                { code: 'NUR-101', name: 'Foundations of Nursing', students: 5, category: 'Health' },
+                /* Student Success */
+                { code: 'ACA-122', name: 'College Transfer Success', students: 5, category: 'Student Success' },
+            ];
+
+            renderGrouped(demoCourses, container);
+        }
+
+        /* Load the lobby when page opens */
+        loadLobby();
+    </script>
+
+</body>
+</html>
