@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Room - Success Lobby</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #050d1a;
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            background-image:
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+            letter-spacing: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-tag {
+            font-size: 13px;
+            color: #00ffff;
+            border: 1px solid #00ffff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            box-shadow: 0 0 8px rgba(0,255,255,0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back-link {
+            font-size: 12px;
+            color: #90a4ae;
+            text-decoration: none;
+            letter-spacing: 1px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .back-link:hover { color: #00ffff; }
+
+        .active-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #00ff88;
+            animation: pulse 2s infinite;
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 16px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .course-bar {
+            background: linear-gradient(135deg, #0a1628, #0d2137);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+
+        .course-bar-code {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #00ffff;
+        }
+
+        .course-bar-name {
+            font-size: 14px;
+            color: #90a4ae;
+            margin-top: 4px;
+        }
+
+        /* Demo mode banner */
+        .demo-banner {
+            background: rgba(255, 200, 0, 0.1);
+            border: 1px solid #ffc800;
+            border-radius: 8px;
+            padding: 10px 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #ffc800;
+            display: none;
+        }
+
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .match-card {
+            background: linear-gradient(135deg, #0a1628, #0d2137);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .match-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #00ffff, #0066ff);
+            box-shadow: 0 0 8px #00ffff;
+        }
+
+        .partner-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .partner-major {
+            font-size: 13px;
+            color: #90a4ae;
+            margin-bottom: 14px;
+        }
+
+        .match-pct {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 26px;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        .pct-high  { color: #00ff88; }
+        .pct-mid   { color: #00ffff; }
+        .pct-low   { color: #ffc800; }
+        .pct-none  { color: #90a4ae; }
+
+        .bar-bg {
+            width: 100%;
+            height: 5px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 3px;
+            margin-bottom: 14px;
+        }
+
+        .bar-fill { height: 100%; border-radius: 3px; }
+
+        .fill-high { background: #00ff88; }
+        .fill-mid  { background: #00ffff; }
+        .fill-low  { background: #ffc800; }
+        .fill-none { background: #2a3f55; }
+
+        .reasons-label {
+            font-size: 11px;
+            color: #90a4ae;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .reason-tag {
+            display: inline-block;
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin: 3px 3px 3px 0;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #00ffff;
+            background: rgba(0, 255, 255, 0.06);
+        }
+
+        .info-row {
+            display: flex;
+            gap: 10px;
+            margin: 14px 0;
+        }
+
+        .info-pill {
+            flex: 1;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .info-pill-label {
+            font-size: 10px;
+            color: #3a5068;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .info-pill-val {
+            font-size: 13px;
+            color: #cdd9e5;
+            margin-top: 3px;
+            text-transform: capitalize;
+        }
+
+        .btn-connect {
+            width: 100%;
+            margin-top: 4px;
+            padding: 10px;
+            background: transparent;
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+        }
+
+        .btn-connect:hover {
+            background: rgba(0, 255, 255, 0.15);
+            box-shadow: 0 0 12px rgba(0,255,255,0.3);
+        }
+
+        .btn-connect.connected {
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        .empty-msg {
+            text-align: center;
+            padding: 40px 20px;
+            color: #90a4ae;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">⬡ SUCCESS LOBBY</div>
+        <div class="header-right">
+            <a href="Lobby.html" class="back-link">← LOBBY</a>
+            <div class="user-tag">
+                <span class="active-dot"></span>
+                <span id="display-user">STUDENT</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shows when server is offline -->
+    <div class="demo-banner" id="demo-banner">
+        ⚡ DEMO MODE — Server offline. Showing sample matches.
+    </div>
+
+    <div class="course-bar">
+        <div class="course-bar-code" id="course-code">Loading...</div>
+        <div class="course-bar-name" id="course-name"></div>
+    </div>
+
+    <div class="section-title">// Study Partner Matches</div>
+
+    <div class="matches-grid" id="matches-grid">
+        <div class="empty-msg">Loading matches...</div>
+    </div>
+
+    <script>
+        /* Escapes HTML to prevent XSS attacks */
+        function escapeHTML(str) {
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        const userName = localStorage.getItem('cpcc-user') || 'STUDENT';
+        const userEmail = localStorage.getItem('cpcc-email') || '';
+
+        if (!userEmail) { window.location.href = 'cpcc_login.html'; }
+
+        const courseCode = localStorage.getItem('current-course') || '';
+
+        if (!courseCode) { window.location.href = 'Lobby.html'; }
+
+        document.getElementById('display-user').textContent = userName.toUpperCase();
+
+        const MAX_SCORE = 100;
+
+        /* Builds HTML for a match card */
+        function buildCard(name, major, pct, pctClass, fillClass, reasonsHTML, availability, campus, email) {
+            /* email is empty string in demo mode */
+            const emailAttr = email ? `'${escapeHTML(email)}'` : "''";
+            return `
+                <div class="match-card">
+                    <div class="partner-name">${name}</div>
+                    <div class="partner-major">${major}</div>
+                    <div class="match-pct ${pctClass}">${pct}% Match</div>
+                    <div class="bar-bg">
+                        <div class="bar-fill ${fillClass}" style="width: ${pct}%"></div>
+                    </div>
+                    <div class="reasons-label">Why you match</div>
+                    <div>${reasonsHTML}</div>
+                    <div class="info-row">
+                        <div class="info-pill">
+                            <div class="info-pill-label">Availability</div>
+                            <div class="info-pill-val">${availability}</div>
+                        </div>
+                        <div class="info-pill">
+                            <div class="info-pill-label">Campus</div>
+                            <div class="info-pill-val">${campus}</div>
+                        </div>
+                    </div>
+                    <button class="btn-connect" onclick="connect(this, '${name}', ${emailAttr})">
+                        CONNECT →
+                    </button>
+                </div>
+            `;
+        }
+
+        /* Load match data from the server */
+        function loadRoom() {
+            fetch(`http://127.0.0.1:5000/api/room?email=${userEmail}&course_code=${courseCode}`)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                const grid = document.getElementById('matches-grid');
+
+                if (!data.success) {
+                    grid.innerHTML = '<div class="empty-msg">Could not load matches.</div>';
+                    return;
+                }
+
+                document.getElementById('course-code').textContent = data.course_code;
+                document.getElementById('course-name').textContent = data.course_name || '';
+
+                if (data.matches.length === 0) {
+                    grid.innerHTML = '<div class="empty-msg">No other students in this course yet.</div>';
+                    return;
+                }
+
+                grid.innerHTML = '';
+
+                /* Build a card for each matched student from server */
+                data.matches.forEach(function(partner) {
+                    const pct = Math.min(100, Math.round((partner.score / MAX_SCORE) * 100));
+
+                    let pctClass, fillClass;
+                    if (pct >= 60) { pctClass = 'pct-high'; fillClass = 'fill-high'; }
+                    else if (pct >= 30) { pctClass = 'pct-mid'; fillClass = 'fill-mid'; }
+                    else if (pct >= 10) { pctClass = 'pct-low'; fillClass = 'fill-low'; }
+                    else { pctClass = 'pct-none'; fillClass = 'fill-none'; }
+
+                    let reasonsHTML = '';
+                    if (!partner.reasons || partner.reasons.length === 0) {
+                        reasonsHTML = '<span class="reason-tag">Same Course</span>';
+                    } else {
+                        partner.reasons.forEach(function(reason) {
+                            reasonsHTML += `<span class="reason-tag">${escapeHTML(reason)}</span>`;
+                        });
+                    }
+
+                    grid.innerHTML += buildCard(
+                        escapeHTML(partner.name),
+                        escapeHTML(partner.major !== '—' ? partner.major : 'Major not set'),
+                        pct, pctClass, fillClass, reasonsHTML,
+                        escapeHTML(partner.availability),
+                        escapeHTML(partner.campus),
+                        partner.email || ''
+                    );
+                });
+            })
+            .catch(function() {
+                /* Server offline - show demo mode */
+                console.log('Server offline - running demo mode');
+                document.getElementById('demo-banner').style.display = 'block';
+                loadDemoRoom();
+            });
+        }
+
+        /* Demo mode - shows fake study partners when server is offline */
+        function loadDemoRoom() {
+            document.getElementById('course-code').textContent = courseCode;
+
+            const courseNames = {
+                'CSC-151': 'Java Programming', 'MAT-171': 'Precalculus Algebra',
+                'ENG-111': 'Writing & Inquiry', 'BUS-110': 'Introduction to Business',
+                'PSY-150': 'General Psychology', 'ACC-120': 'Principles of Accounting',
+                'CSC-121': 'Python Programming', 'CTI-110': 'Web Development',
+                'DBA-110': 'Database Concepts',
+            };
+            document.getElementById('course-name').textContent = courseNames[courseCode] || courseCode;
+
+            /* Fake study partners with AI-style match reasons */
+            const demoMatches = [
+                { name: 'Maria G.', major: 'Computer Science', score: 85, availability: 'Afternoon', campus: 'Central Campus', email: '', reasons: ['Same Schedule', 'Same Campus'] },
+                { name: 'James T.', major: 'Business Admin', score: 72, availability: 'Morning', campus: 'Harper Campus', email: '', reasons: ['Same Course'] },
+                { name: 'Priya K.', major: 'Information Technology', score: 91, availability: 'Afternoon', campus: 'Central Campus', email: '', reasons: ['Same Schedule', 'Same Campus', 'Same Major'] },
+                { name: 'Carlos R.', major: 'General Studies', score: 45, availability: 'Evening', campus: 'Levine Campus', email: '', reasons: ['Same Course'] },
+            ];
+
+            const grid = document.getElementById('matches-grid');
+            grid.innerHTML = '';
+
+            demoMatches.forEach(function(partner) {
+                const pct = partner.score;
+                let pctClass, fillClass;
+                if (pct >= 60) { pctClass = 'pct-high'; fillClass = 'fill-high'; }
+                else if (pct >= 30) { pctClass = 'pct-mid'; fillClass = 'fill-mid'; }
+                else if (pct >= 10) { pctClass = 'pct-low'; fillClass = 'fill-low'; }
+                else { pctClass = 'pct-none'; fillClass = 'fill-none'; }
+
+                let reasonsHTML = partner.reasons.map(function(r) {
+                    return `<span class="reason-tag">${escapeHTML(r)}</span>`;
+                }).join('');
+
+                grid.innerHTML += buildCard(
+                    escapeHTML(partner.name), escapeHTML(partner.major),
+                    pct, pctClass, fillClass, reasonsHTML,
+                    partner.availability, partner.campus, ''
+                );
+            });
+        }
+
+        /* Connect button - uses real API if server is online, simulates if offline */
+        function connect(btn, partnerName, partnerEmail) {
+            if (btn.classList.contains('connected')) return;
+
+            const confirmed = confirm(`Send a connect request to ${partnerName}?\n\nThey will see your email: ${userEmail}`);
+
+            if (!confirmed) return;
+
+            /* Save partner for chat */
+            localStorage.setItem('chat-partner', partnerName);
+
+            /* Save notification */
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            notifications.unshift({
+                name: partnerName,
+                course: courseCode,
+                time: new Date().toLocaleTimeString(),
+                read: false
+            });
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+
+            /* Try to send connection to server if email is available */
+            if (partnerEmail) {
+                fetch('http://127.0.0.1:5000/api/connect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        from_email: userEmail,
+                        to_email: partnerEmail,
+                        course_code: courseCode
+                    })
+                })
+                .then(function(res) { return res.json(); })
+                .catch(function() {
+                    /* Server offline - connection saved locally only */
+                    console.log('Server offline - connection saved locally');
+                });
+            }
+
+            /* Mark as connected and show popup */
+            btn.textContent = '✓ CONNECTED';
+            btn.classList.add('connected');
+            showConnectionPopup(partnerName);
+        }
+
+        /* Shows a popup after connecting */
+        function showConnectionPopup(partnerName) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.7); display: flex; justify-content: center;
+                align-items: center; z-index: 999;
+            `;
+            overlay.innerHTML = `
+                <div style="
+                    background: linear-gradient(135deg, #0a1628, #0d2137);
+                    border: 1px solid #00ff88;
+                    border-radius: 16px;
+                    padding: 40px;
+                    text-align: center;
+                    max-width: 400px;
+                    width: 90%;
+                    box-shadow: 0 0 40px rgba(0,255,136,0.2);
+                ">
+                    <div style="font-size: 40px; margin-bottom: 16px;">⚡</div>
+                    <div style="
+                        font-family: 'Orbitron', sans-serif;
+                        font-size: 18px;
+                        font-weight: 900;
+                        color: #00ff88;
+                        text-shadow: 0 0 10px #00ff88;
+                        margin-bottom: 8px;
+                    ">CONNECTION ESTABLISHED!</div>
+                    <div style="font-size: 14px; color: #cdd9e5; margin-bottom: 8px;">
+                        You connected with <strong style="color: white;">${escapeHTML(partnerName)}</strong>
+                    </div>
+                    <div style="font-size: 13px; color: #90a4ae; margin-bottom: 20px;">
+                        📚 Course: ${escapeHTML(courseCode)}
+                    </div>
+                    <div style="
+                        font-family: 'Orbitron', sans-serif;
+                        font-size: 22px;
+                        font-weight: 900;
+                        color: #ffc800;
+                        text-shadow: 0 0 10px #ffc800;
+                        margin-bottom: 20px;
+                    ">+50 XP EARNED!</div>
+                    <button onclick="window.location.href='chat.html'" style="
+                        padding: 12px 30px;
+                        background: transparent;
+                        border: 1px solid #00ff88;
+                        color: #00ff88;
+                        border-radius: 8px;
+                        font-family: 'Orbitron', sans-serif;
+                        font-size: 12px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        letter-spacing: 2px;
+                    ">CHAT NOW →</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        loadRoom();
+    </script>
+
+</body>
+</html>

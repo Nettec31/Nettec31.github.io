@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Success Lobby</title>
+    <!-- Chat page - simulated messaging between connected students -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #050d1a;
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image:
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-link {
+            font-size: 12px;
+            color: #90a4ae;
+            text-decoration: none;
+            letter-spacing: 1px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .back-link:hover { color: #00ffff; }
+
+        .chat-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #00ffff;
+            letter-spacing: 2px;
+        }
+
+        .chat-subtitle {
+            font-size: 12px;
+            color: #90a4ae;
+        }
+
+        /* Online indicator */
+        .online-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #00ff88;
+        }
+
+        .active-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #00ff88;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Messages area - scrollable */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Each message bubble */
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+        }
+
+        /* My messages on the right */
+        .message.mine {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        /* Their messages on the left */
+        .message.theirs {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        /* Sender name above bubble */
+        .message-sender {
+            font-size: 11px;
+            color: #90a4ae;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        /* Message bubble */
+        .message-bubble {
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+            max-width: 100%;
+        }
+
+        /* My bubble - cyan */
+        .message.mine .message-bubble {
+            background: rgba(0, 255, 255, 0.15);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Their bubble - darker */
+        .message.theirs .message-bubble {
+            background: linear-gradient(135deg, #0a1628, #0d2137);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            color: #cdd9e5;
+            border-bottom-left-radius: 4px;
+        }
+
+        /* Time stamp below bubble */
+        .message-time {
+            font-size: 10px;
+            color: #3a5068;
+            margin-top: 4px;
+        }
+
+        /* System message - centered */
+        .system-msg {
+            text-align: center;
+            font-size: 12px;
+            color: #90a4ae;
+            padding: 8px 16px;
+            background: rgba(0, 255, 255, 0.05);
+            border-radius: 20px;
+            align-self: center;
+            border: 1px solid rgba(0, 255, 255, 0.1);
+        }
+
+        /* Input area at the bottom */
+        .input-area {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Message input field */
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            background: rgba(0, 255, 255, 0.05);
+            color: white;
+            font-size: 14px;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0,255,255,0.2);
+        }
+
+        .message-input::placeholder { color: #3a5068; }
+
+        /* Send button */
+        .btn-send {
+            padding: 12px 20px;
+            background: transparent;
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-send:hover {
+            background: rgba(0, 255, 255, 0.15);
+            box-shadow: 0 0 12px rgba(0,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header with partner name and back button -->
+    <div class="header">
+        <div class="header-left">
+            <a href="room.html" class="back-link">← BACK</a>
+            <div>
+                <div class="chat-title" id="chat-title">CHAT</div>
+                <div class="chat-subtitle" id="chat-subtitle">Connected via Success Lobby</div>
+            </div>
+        </div>
+        <div class="online-badge">
+            <div class="active-dot"></div>
+            ONLINE
+        </div>
+    </div>
+
+    <!-- Messages appear here -->
+    <div class="messages-area" id="messages-area"></div>
+
+    <!-- Input area -->
+    <div class="input-area">
+        <input
+            class="message-input"
+            id="message-input"
+            type="text"
+            placeholder="Type a message..."
+            onkeypress="handleKeyPress(event)"
+        />
+        <button class="btn-send" onclick="sendMessage()">SEND →</button>
+    </div>
+
+    <script>
+        /* Get user and partner info from localStorage */
+        const userName = localStorage.getItem('cpcc-user') || 'You';
+        const partnerName = localStorage.getItem('chat-partner') || 'Study Partner';
+        const courseCode = localStorage.getItem('current-course') || '';
+
+        /* Show partner name in header */
+        document.getElementById('chat-title').textContent = partnerName.toUpperCase();
+        document.getElementById('chat-subtitle').textContent = `Study partner • ${courseCode}`;
+
+        /* Key for storing this chat in localStorage */
+        const chatKey = `chat-${userName}-${partnerName}`.replace(/\s/g, '');
+
+        /* Load existing messages or start with default ones */
+        function loadMessages() {
+            const saved = localStorage.getItem(chatKey);
+            if (saved) {
+                return JSON.parse(saved);
+            }
+
+            /* Default messages to make chat feel alive on first open */
+            return [
+                { type: 'system', text: `You connected with ${partnerName}` },
+                { type: 'theirs', sender: partnerName, text: `Hey! I saw we matched for ${courseCode}. Want to study together? 📚`, time: getTime(-5) },
+                { type: 'theirs', sender: partnerName, text: 'I usually study at the Central Campus library in the afternoons.', time: getTime(-3) },
+            ];
+        }
+
+        /* Returns a time string offset by minutes */
+        function getTime(offsetMinutes) {
+            const d = new Date();
+            d.setMinutes(d.getMinutes() + offsetMinutes);
+            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        /* Current messages array */
+        let messages = loadMessages();
+
+        /* Renders all messages on screen */
+        function renderMessages() {
+            const area = document.getElementById('messages-area');
+            area.innerHTML = '';
+
+            messages.forEach(function(msg) {
+                if (msg.type === 'system') {
+                    /* System message - centered */
+                    area.innerHTML += `<div class="system-msg">⚡ ${msg.text}</div>`;
+                } else {
+                    /* Regular message bubble */
+                    const side = msg.type === 'mine' ? 'mine' : 'theirs';
+                    area.innerHTML += `
+                        <div class="message ${side}">
+                            <div class="message-sender">${msg.sender}</div>
+                            <div class="message-bubble">${msg.text}</div>
+                            <div class="message-time">${msg.time}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            /* Scroll to the bottom so latest message shows */
+            area.scrollTop = area.scrollHeight;
+        }
+
+        /* Sends a new message */
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+
+            /* Don't send empty messages */
+            if (!text) return;
+
+            /* Add my message */
+            messages.push({
+                type: 'mine',
+                sender: userName,
+                text: text,
+                time: getTime(0)
+            });
+
+            /* Clear input */
+            input.value = '';
+
+            /* Save to localStorage */
+            localStorage.setItem(chatKey, JSON.stringify(messages));
+
+            /* Re-render */
+            renderMessages();
+
+            /* Simulate a reply after 1.5 seconds */
+            setTimeout(function() {
+                simulateReply(text);
+            }, 1500);
+        }
+
+        /* Simulates a reply from the study partner */
+        function simulateReply(lastMessage) {
+            const replies = [
+                'That sounds great! 👍',
+                'Sure, let\'s meet at the library!',
+                'I was thinking the same thing 😊',
+                'Perfect, what time works for you?',
+                'I can help with that topic!',
+                'Do you have the notes from last class?',
+                'Let\'s meet tomorrow afternoon?',
+                'I\'m free on weekends too if that works better.',
+                'Great idea! See you there 🎯',
+            ];
+
+            /* Pick a random reply */
+            const reply = replies[Math.floor(Math.random() * replies.length)];
+
+            messages.push({
+                type: 'theirs',
+                sender: partnerName,
+                text: reply,
+                time: getTime(0)
+            });
+
+            /* Save and re-render */
+            localStorage.setItem(chatKey, JSON.stringify(messages));
+            renderMessages();
+        }
+
+        /* Sends message when you press Enter */
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        /* Load messages when page opens */
+        renderMessages();
+    </script>
+
+</body>
+</html>
